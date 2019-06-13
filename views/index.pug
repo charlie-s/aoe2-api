@@ -24,7 +24,12 @@ body
 
                             v-select(
                                 :items="characters"
+                                item-text="name"
+                                item-value="character"
+                                return-object
                                 label="Characters"
+                                :loading="characters.length > 0 ? false : true"
+                                @change="handleChange"
                             )
 
                         v-flex(xs12 sm3 d-flex)
@@ -32,7 +37,7 @@ body
                             //- @todo add a button that "submits" the form.
                             //- @see https://vuetifyjs.com/en/components/buttons
 
-                            v-btn Submit
+                            v-btn(type="submit" @click="submit()") Submit
 
                     v-layout(wrap align-center)
 
@@ -41,6 +46,15 @@ body
                             //- @todo use a card to display some of the
                             //- selected character's homeworld & species info.
                             //- @see https://vuetifyjs.com/en/components/cards
+                            
+                            v-card(v-if="submitted")
+                                v-layout(align-center justify-center row)
+                                    v-card-title(primary-title)
+                                        h1.display-3.headline {{ characterSelected.name }}
+                                v-card-text
+                                    p(v-if="species").text-xs-center Species: {{ species }}
+                                    p(v-if="homeworld").text-xs-center Homeworld: {{ homeworld }}
+                                    
 
     script.
         new Vue({
@@ -50,22 +64,31 @@ body
                 characterSelected: null,
                 homeworld: null,
                 species: null,
+                submitted: false, // prevent anything from showing prior to hitting submit
             },
-            created() {
-               
+            async created() {
                 //- @todo Use Axios to populate our list of Star Wars characters via https://swapi.co/api/people
                 //- (`axios` is already available via CDN at the top of this page)
+                res = await axios.get('https://swapi.co/api/people');
+                this.characters = await res.data.results;
 
             },
             methods: {
 
                 submit() {
-
+                    this.submitted = true;
                     // @todo Get the selected character's "Homeworld" information.
-
+                    axios.get(this.characterSelected.homeworld).then(res => {
+                        this.homeworld = res.data.name
+                    });
                     // @todo Get the selected character's "Species" information.
-
+                    axios.get(this.characterSelected.species).then(res => {
+                        this.species = res.data.name
+                    });
                 },
+                handleChange(e) {
+                    this.characterSelected = e;
+                }
 
             }
         });
