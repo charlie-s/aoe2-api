@@ -69,7 +69,7 @@ body
             async created() {
                 //- @todo Use Axios to populate our list of Star Wars characters via https://swapi.co/api/people
                 //- (`axios` is already available via CDN at the top of this page)
-                res = await axios.get('https://swapi.co/api/people');
+                const res = await axios.get('https://swapi.co/api/people');
                 this.characters = await res.data.results;
 
             },
